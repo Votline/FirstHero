@@ -44,6 +44,7 @@ func main() {
 	program := gl.CreateProgram()
 	shaders.CompileAndAttachShaders(program)
 	gl.LinkProgram(program)
+	gl.UseProgram(program)
 
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -53,17 +54,17 @@ func main() {
 	gl.GenBuffers(1, &vbo)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 7*4, nil)
 	gl.EnableVertexAttribArray(0)
 
-	t := primShapes.Triangular{StartPos: mgl32.Vec2{-0.8, -0.4}, Width: 0.1, Height: 0.3}
-	vertices, verticesQuan := t.CreateTriangular()
+	t := primShapes.Triangular{StartPos: mgl32.Vec2{-0.8, -0.4}, Width: 0.1, Height: 0.3, 
+	Color: mgl32.Vec4{1.0, 0.0, 0.0, 1.0}} 
+	vertices, verticesQuan := t.CreateTriangular(program)
 
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
 	gl.LineWidth(3.0)
 	glfw.SwapInterval(1)
-	gl.UseProgram(program)
 	for !window.ShouldClose(){
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
