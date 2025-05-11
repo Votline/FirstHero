@@ -9,6 +9,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 
 	"FirstHero/shaders"
+	"FirstHero/movement"
 	"FirstHero/primShapes"
 )
 
@@ -20,6 +21,9 @@ func init() {
 }
 
 func main() {
+	t := primShapes.Triangular{CurrentPos: mgl32.Vec2{-0.8, -0.4}, Width: 0.1, Height: 0.3, 
+	Color: mgl32.Vec4{1.0, 0.0, 0.0, 1.0}, Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3} 
+
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
 	}
@@ -36,6 +40,18 @@ func main() {
 		log.Fatalln("GLFW create window error. \nErr: ", err)
 	}
 	window.MakeContextCurrent()
+	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mod glfw.ModifierKey){
+		if action == glfw.Press || action == glfw.Repeat {
+			switch key {
+			case glfw.KeyA:
+				movement.SetTargetPos(&t, 0, -t.Speed) 
+			case glfw.KeyD:
+				movement.SetTargetPos(&t, 0, t.Speed)
+			case glfw.KeySpace:
+				movement.SetTargetPos(&t, 1, t.JumpHeight)
+			}
+		}
+	})
 
 	if err := gl.Init(); err != nil {
 		log.Fatalln("OpenGL init error. \nErr: ", err)
@@ -57,16 +73,16 @@ func main() {
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 7*4, nil)
 	gl.EnableVertexAttribArray(0)
 
-	t := primShapes.Triangular{StartPos: mgl32.Vec2{-0.8, -0.4}, Width: 0.1, Height: 0.3, 
-	Color: mgl32.Vec4{1.0, 0.0, 0.0, 1.0}} 
-	vertices, verticesQuan := t.CreateTriangular(program)
 
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
 	gl.LineWidth(3.0)
 	glfw.SwapInterval(1)
 	for !window.ShouldClose(){
+		movement.UpdatePos(&t)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
+	
+		vertices, verticesQuan := t.CreateTriangular(program)
+		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 
 		gl.DrawArrays(gl.LINE_LOOP, 0, verticesQuan)
 
