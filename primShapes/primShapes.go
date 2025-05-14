@@ -28,3 +28,24 @@ func (t *Triangular) CreateTriangular(program uint32) ([]float32, int32){
 		t.Color.X(), t.Color.Y(), t.Color.Z(), t.Color.W(),
 	}, 3
 }
+
+type Quad struct {
+	TargetPos [4]mgl32.Vec2
+	CurrentPos [4]mgl32.Vec2
+	Color []mgl32.Vec4
+	Width float32
+	Height float32
+	Alpha float32
+	Speed float32
+	JumpHeight float32
+}
+func (q *Quad) CreateQuad() ([]float32, []uint32){
+	var vertices []float32
+	for i := 0; i < 4; i++ {
+		vertices = append(vertices,
+			q.CurrentPos[i].X(), q.CurrentPos[i].Y(), 0.0,
+			q.Color[i].X(), q.Color[i].Y(), q.Color[i].Z(), q.Color[i].W())
+	}
+	indices := []uint32{0, 1, 2, 2, 3, 0}
+	return vertices, indices
+}

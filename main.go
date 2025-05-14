@@ -21,8 +21,21 @@ func init() {
 }
 
 func main() {
-	t := primShapes.Triangular{CurrentPos: mgl32.Vec2{-0.8, -0.4}, Width: 0.1, Height: 0.3, 
-	Color: mgl32.Vec4{1.0, 0.0, 0.0, 1.0}, Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3} 
+	q := primShapes.Quad{Width: 0.1, Height: 0.3,Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3,
+	CurrentPos: [4]mgl32.Vec2{ 
+		{-0.8, -0.4}, {-0.8, -0.7}, 
+		{-0.4, -0.7}, {-0.4, -0.4},
+	},
+	TargetPos: [4]mgl32.Vec2{ 
+		{-0.8, -0.4}, {-0.8, -0.7}, 
+		{-0.4, -0.7}, {-0.4, -0.4},
+	},
+	Color: []mgl32.Vec4{
+		{1.0, 0.0, 0.0, 1.0},
+		{0.5, 0.0, 0.0, 1.0},
+		{1.0, 1.0, 0.0, 1.0},
+		{1.0, 0.0, 1.0, 1.0},
+	}} 
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -44,11 +57,11 @@ func main() {
 		if action == glfw.Press || action == glfw.Repeat {
 			switch key {
 			case glfw.KeyA:
-				movement.SetTargetPos(&t, 0, -t.Speed) 
+				movement.SetTargetPos(&q, 0, -q.Speed) 
 			case glfw.KeyD:
-				movement.SetTargetPos(&t, 0, t.Speed)
+				movement.SetTargetPos(&q, 0, q.Speed)
 			case glfw.KeySpace:
-				movement.SetTargetPos(&t, 1, t.JumpHeight)
+				movement.SetTargetPos(&q, 1, q.JumpHeight)
 			}
 		}
 	})
@@ -60,11 +73,14 @@ func main() {
 	program := gl.CreateProgram()
 	shaders.CompileAndAttachShaders(program)
 	gl.LinkProgram(program)
-	gl.UseProgram(program)
 
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
+
+	var ebo uint32
+	gl.GenBuffers(1, &ebo)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
@@ -73,21 +89,24 @@ func main() {
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 7*4, nil)
 	gl.EnableVertexAttribArray(0)
 
-
+	gl.VertexAttribPointer(1, 4, gl.FLOAT, false, 7*4, gl.PtrOffset(3*4))
+	gl.EnableVertexAttribArray(1)
 
 	gl.LineWidth(3.0)
 	glfw.SwapInterval(1)
+	gl.UseProgram(program)
 	for !window.ShouldClose(){
-		movement.UpdatePos(&t)
+		movement.UpdatePos(&q)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 	
-		vertices, verticesQuan := t.CreateTriangular(program)
+		vertices, indices := q.CreateQuad()
 		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
-		gl.DrawArrays(gl.LINE_LOOP, 0, verticesQuan)
+		gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
 
 		if err := gl.GetError(); err != gl.NO_ERROR {
-			log.Println("OpenGL error. \nErr: ", err)
+			log.Printf("OpenGL error: 0x%x\n", err)
 		}
 
 		window.SwapBuffers()
