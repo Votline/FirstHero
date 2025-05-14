@@ -9,8 +9,7 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 
 	"FirstHero/shaders"
-	"FirstHero/movement"
-	"FirstHero/primShapes"
+	"FirstHero/player"
 )
 
 const windowWidth = 800
@@ -21,21 +20,42 @@ func init() {
 }
 
 func main() {
-	q := primShapes.Quad{Width: 0.1, Height: 0.3,Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3,
-	CurrentPos: [4]mgl32.Vec2{ 
-		{-0.8, -0.4}, {-0.8, -0.7}, 
-		{-0.4, -0.7}, {-0.4, -0.4},
-	},
-	TargetPos: [4]mgl32.Vec2{ 
-		{-0.8, -0.4}, {-0.8, -0.7}, 
-		{-0.4, -0.7}, {-0.4, -0.4},
-	},
-	Color: []mgl32.Vec4{
-		{1.0, 0.0, 0.0, 1.0},
-		{0.5, 0.0, 0.0, 1.0},
-		{1.0, 1.0, 0.0, 1.0},
-		{1.0, 0.0, 1.0, 1.0},
-	}} 
+	rt := player.Limb{Name: "Root", Parent: nil,
+		TargetPos: [4]mgl32.Vec2{
+			{-0.8, -0.4}, {-0.8, -0.7},
+			{-0.4, -0.7}, {-0.4, -0.4},
+		},
+		CurrentPos: [4]mgl32.Vec2{
+  	  {-0.8, -0.4}, {-0.8, -0.7},
+  	  {-0.4, -0.7}, {-0.4, -0.4},
+  	},
+		Color: []mgl32.Vec4{
+  		{1.0, 0.0, 0.0, 1.0},
+			{0.5, 0.0, 0.0, 1.0},
+			{1.0, 1.0, 0.0, 1.0},
+			{1.0, 0.0, 1.0, 1.0},
+		},
+	}
+	lh := player.Limb{Name: "LeftHand", Parent: &rt,
+    TargetPos: [4]mgl32.Vec2{
+      {-0.9, -0.4}, {-0.9, -0.7},
+      {-0.5, -0.7}, {-0.5, -0.4},
+    },
+    CurrentPos: [4]mgl32.Vec2{
+      {-0.9, -0.4}, {-0.9, -0.7},
+      {-0.5, -0.7}, {-0.5, -0.4},
+    },
+    Color: []mgl32.Vec4{
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+    },
+  }
+	allLimbs := make(map[string]*player.Limb)
+	allLimbs["LeftHand"] = &lh
+	pl := player.Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3, 
+	RootLimb: &rt, Limbs: allLimbs}
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -57,11 +77,11 @@ func main() {
 		if action == glfw.Press || action == glfw.Repeat {
 			switch key {
 			case glfw.KeyA:
-				movement.SetTargetPos(&q, 0, -q.Speed) 
+				pl.SetTarget(0, -pl.Speed) 
 			case glfw.KeyD:
-				movement.SetTargetPos(&q, 0, q.Speed)
+				pl.SetTarget(0, pl.Speed)
 			case glfw.KeySpace:
-				movement.SetTargetPos(&q, 1, q.JumpHeight)
+				pl.SetTarget(1, pl.JumpHeight)
 			}
 		}
 	})
@@ -96,15 +116,17 @@ func main() {
 	glfw.SwapInterval(1)
 	gl.UseProgram(program)
 	for !window.ShouldClose(){
-		movement.UpdatePos(&q)
+		pl.UpdatePos(pl.RootLimb)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 	
-		vertices, indices := q.CreateQuad()
-		gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-		gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+		for _, limb := range pl.GetAllLimbs() {
+			vertices, indices := limb.CreateLimb()
 
-		gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
+			gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER,len(indices)*4,gl.Ptr(indices), gl.STATIC_DRAW)
 
+			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
+		}
 		if err := gl.GetError(); err != gl.NO_ERROR {
 			log.Printf("OpenGL error: 0x%x\n", err)
 		}
