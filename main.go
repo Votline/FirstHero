@@ -21,14 +21,14 @@ func init() {
 
 func main() {
 	rt := player.Limb{Name: "Root", Parent: nil,
-		TargetPos: [4]mgl32.Vec2{
-			{-0.8, -0.4}, {-0.8, -0.7},
-			{-0.4, -0.7}, {-0.4, -0.4},
-		},
 		CurrentPos: [4]mgl32.Vec2{
-  	  {-0.8, -0.4}, {-0.8, -0.7},
-  	  {-0.4, -0.7}, {-0.4, -0.4},
-  	},
+			{-0.8, -0.4}, {-0.8, -0.65},
+			{-0.73, -0.65}, {-0.73, -0.4},
+		},
+		TargetPos: [4]mgl32.Vec2{
+		  {-0.8, -0.4}, {-0.8, -0.65},
+      {-0.73, -0.65}, {-0.73, -0.4},
+		},
 		Color: []mgl32.Vec4{
   		{1.0, 0.0, 0.0, 1.0},
 			{0.5, 0.0, 0.0, 1.0},
@@ -37,13 +37,29 @@ func main() {
 		},
 	}
 	lh := player.Limb{Name: "LeftHand", Parent: &rt,
+   CurrentPos: [4]mgl32.Vec2{
+      {-0.05, 0.0}, {-0.05, 0.1},
+			{-0.07, 0.1}, {-0.07, 0.0}, 
+	 },
     TargetPos: [4]mgl32.Vec2{
-      {-0.9, -0.4}, {-0.9, -0.7},
-      {-0.5, -0.7}, {-0.5, -0.4},
+      {-0.05, 0.0}, {-0.05, 0.1},
+      {-0.07, 0.1}, {-0.07, 0.0},
     },
-    CurrentPos: [4]mgl32.Vec2{
-      {-0.9, -0.4}, {-0.9, -0.7},
-      {-0.5, -0.7}, {-0.5, -0.4},
+		Color: []mgl32.Vec4{
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+      {1.0, 0.0, 0.0, 1.0},
+    },
+  }
+	rh := player.Limb{Name: "RightHand", Parent: &rt,
+   CurrentPos: [4]mgl32.Vec2{
+      {0.07, 0.0}, {0.07, 0.1},
+      {0.05, 0.1}, {0.05, 0.0},
+	 },
+    TargetPos: [4]mgl32.Vec2{
+      {0.07, 0.0}, {0.07, 0.1},
+      {0.05, 0.1}, {0.05, 0.0},
     },
     Color: []mgl32.Vec4{
       {1.0, 0.0, 0.0, 1.0},
@@ -54,6 +70,7 @@ func main() {
   }
 	allLimbs := make(map[string]*player.Limb)
 	allLimbs["LeftHand"] = &lh
+	allLimbs["RightHand"] = &rh
 	pl := player.Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3, 
 	RootLimb: &rt, Limbs: allLimbs}
 
