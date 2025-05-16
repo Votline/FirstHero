@@ -13,8 +13,17 @@ type Limb struct {
 	Color []mgl32.Vec4
 }
 func (l *Limb) CreateLimb() ([]float32, []uint32) {
-	q := primShapes.Quad{Pos: l.CurrentPos, Color: l.Color}
-	vertices, indices := q.CreateQuad()
+	var vertices []float32
+	var indices []uint32
+
+	if l.Name != "Head"{
+		q := primShapes.Quad{Pos: l.CurrentPos, Color: l.Color}
+		vertices, indices = q.CreateQuad()
+	} else {
+		rq := primShapes.RoundedQuad{Pos: l.CurrentPos, Color: l.Color, 
+			Radius: 0.1, Segments: 6}
+		vertices, indices = rq.CreateRoundedQuad()
+	}
 	return vertices, indices
 }
 
@@ -28,16 +37,22 @@ type Player struct {
 }
 func (p *Player) SetTarget (axis int, delta float32) {
 	for i := 0; i < 4; i++ {
-    p.RootLimb.TargetPos[i][axis] += delta
+		newPos := p.RootLimb.TargetPos[i][axis] + delta
 
-    if p.RootLimb.TargetPos[i][axis] < -1.0 {
-      p.RootLimb.TargetPos[i][axis] = -1.0
-    } else if p.RootLimb.TargetPos[i][0] > 0.9 {
-      p.RootLimb.TargetPos[i][axis] = 0.9
-    } else if p.RootLimb.TargetPos[i][1] > 0.7 {
-      p.RootLimb.TargetPos[i][1] = 0.7
-    }
-  }
+		if newPos < -1.0 {
+			delta = -1.0 - p.RootLimb.TargetPos[i][axis]
+		}
+		if axis == 0 && newPos > 0.9 {
+			delta = 0.9 - p.RootLimb.TargetPos[i][axis]
+		} 
+		if axis == 1 && newPos > 0.7 {
+			delta = 0.7 - p.RootLimb.TargetPos[i][axis]
+		}
+	}
+
+	for i := 0; i < 4; i++ {
+		p.RootLimb.TargetPos[i][axis] += delta
+	}
 }
 func (p *Player) UpdatePos(l *Limb) {
   if l.Parent == nil {
