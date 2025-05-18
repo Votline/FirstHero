@@ -40,10 +40,10 @@ func compileShader(source string, shaderType uint32) uint32 {
 	gl.ShaderSource(shader, 1, cSource, nil)
 	freeMemory()
 	gl.CompileShader(shader)
-	
+
 	var status int32
 	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE{
+	if status == gl.FALSE {
 		var logLength int32
 		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
 
