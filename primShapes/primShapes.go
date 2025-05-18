@@ -1,8 +1,6 @@
 package primShapes
 
 import (
-	"math"
-
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 )
@@ -49,65 +47,3 @@ func (q *Quad) CreateQuad() ([]float32, []uint32) {
 	return vertices, indices
 }
 
-type RoundedQuad struct {
-	Pos      [4]mgl32.Vec2
-	Color    []mgl32.Vec4
-	Radius   float32
-	Segments int
-}
-
-func (rq *RoundedQuad) CreateRoundedQuad() ([]float32, []uint32) {
-	vertices := make([]float32, 0, (rq.Segments+1)*4*7)
-	indices := make([]uint32, 0, rq.Segments*4*6)
-	const Pi = math.Pi
-
-	for corner := 0; corner < 4; corner++ {
-		center := rq.Pos[corner]
-		vertices = append(vertices,
-			center.X(), center.Y(), 0.0,
-			rq.Color[corner].X(), rq.Color[corner].Y(),
-			rq.Color[corner].Z(), rq.Color[corner].W())
-	}
-
-	for corner := 0; corner < 4; corner++ {
-		center := rq.Pos[corner]
-		nextCorner := (corner + 1) % 4
-
-		prevDir := rq.Pos[(corner+3)%4].Sub(center).Normalize()
-		nextDir := rq.Pos[nextCorner].Sub(center).Normalize()
-
-		for s := 0; s < rq.Segments; s++ {
-			t := float32(s) / float32(rq.Segments-1)
-			angle := t * Pi / 2
-			cosAngle := float32(math.Cos(float64(angle)))
-			sinAngle := float32(math.Sin(float64(angle)))
-			dir := prevDir.Mul(cosAngle).Add(nextDir.Mul(sinAngle)).Normalize()
-			point := center.Add(dir.Mul(rq.Radius))
-
-			vertices = append(vertices,
-				point.X(), point.Y(), 0.0,
-				rq.Color[corner].X(), rq.Color[corner].Y(),
-				rq.Color[corner].Z(), rq.Color[corner].W())
-		}
-	}
-
-	for corner := 0; corner < 4; corner++ {
-		centerIndex := corner
-		startIndex := 4 + corner*rq.Segments
-		nextCornerStartIndex := 4 + ((corner+1)%4)*rq.Segments
-
-		for s := 0; s < rq.Segments-1; s++ {
-			indices = append(indices,
-				uint32(centerIndex),
-				uint32(startIndex+s),
-				uint32(startIndex+s+1))
-		}
-
-		indices = append(indices,
-			uint32(centerIndex),
-			uint32(startIndex+rq.Segments-1),
-			uint32(nextCornerStartIndex))
-	}
-
-	return vertices, indices
-}

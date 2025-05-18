@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/go-gl/mathgl/mgl32"
 
 	"FirstHero/player"
 	"FirstHero/shaders"
@@ -20,110 +19,7 @@ func init() {
 }
 
 func main() {
-	rt := player.Limb{Name: "Root", Parent: nil,
-		CurrentPos: [4]mgl32.Vec2{
-			{-0.8, -0.4}, {-0.8, -0.55},
-			{-0.73, -0.55}, {-0.73, -0.4},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{-0.8, -0.4}, {-0.8, -0.55},
-			{-0.73, -0.55}, {-0.73, -0.4},
-		},
-		Color: []mgl32.Vec4{
-			{0.0, 0.0, 1.0, 1.0},
-			{0.0, 0.0, 1.0, 1.0},
-			{0.0, 0.0, 1.0, 1.0},
-			{0.0, 0.0, 1.0, 1.0},
-		},
-	}
-	rh := player.Limb{Name: "RightHand", Parent: &rt,
-		CurrentPos: [4]mgl32.Vec2{
-			{-0.05, 0.0}, {-0.05, 0.0},
-			{-0.07, 0.0}, {-0.07, 0.0},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{-0.05, 0.0}, {-0.05, 0.0},
-			{-0.07, 0.0}, {-0.07, 0.0},
-		},
-		Color: []mgl32.Vec4{
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-		},
-	}
-	lh := player.Limb{Name: "LeftHand", Parent: &rt,
-		CurrentPos: [4]mgl32.Vec2{
-			{0.07, 0.0}, {0.07, 0.0},
-			{0.05, 0.0}, {0.05, 0.0},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{0.07, 0.0}, {0.07, 0.0},
-			{0.05, 0.0}, {0.05, 0.0},
-		},
-		Color: []mgl32.Vec4{
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-		},
-	}
-	rl := player.Limb{Name: "RightLeg", Parent: &rt,
-		CurrentPos: [4]mgl32.Vec2{
-			{0.0, -0.15}, {0.0, -0.15},
-			{-0.035, -0.15}, {-0.035, -0.15},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{0.0, -0.15}, {0.0, -0.15},
-			{-0.035, -0.15}, {-0.035, -0.15},
-		},
-		Color: []mgl32.Vec4{
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-		},
-	}
-	ll := player.Limb{Name: "LeftLeg", Parent: &rt,
-		CurrentPos: [4]mgl32.Vec2{
-			{0.025, -0.15}, {0.025, -0.15},
-			{0.0, -0.15}, {0.0, -0.15},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{0.025, -0.15}, {0.025, -0.15},
-			{0.0, -0.15}, {0.0, -0.15},
-		},
-		Color: []mgl32.Vec4{
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-			{0.49, 0.99, 0.0, 1.0},
-		},
-	}
-	head := player.Limb{Name: "Head", Parent: &rt,
-		CurrentPos: [4]mgl32.Vec2{
-			{0.0, 0.15}, {0.0, 0.0},
-			{0.0, 0.0}, {0.05, 0.15},
-		},
-		TargetPos: [4]mgl32.Vec2{
-			{0.0, 0.1}, {0.0, 0.0},
-			{0.002, 0.0}, {0.002, 0.1},
-		},
-		Color: []mgl32.Vec4{
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-			{1.0, 1.0, 0.0, 1.0},
-		},
-	}
-	allLimbs := make(map[string]*player.Limb)
-	allLimbs["Head"] = &head
-	allLimbs["LeftHand"] = &lh
-	allLimbs["RightHand"] = &rh
-	allLimbs["LeftLeg"] = &ll
-	allLimbs["RightLeg"] = &rl
-	pl := player.Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3,
-		RootLimb: &rt, Limbs: allLimbs}
+	pl := player.NewPlayer()
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
