@@ -9,10 +9,12 @@ import (
 )
 
 const eps = 0.001
+const gravity = 0.01
 
 func CheckCollision(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 	lLeft := l.CurrentPos[1]
 	lRight := l.CurrentPos[2]
+	*canJump = false
 
 	for _, block := range gd {
 		gdLeftU := block.Pos[0]
@@ -25,14 +27,19 @@ func CheckCollision(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		isPointInQuad(lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)) {
 			log.Println("\n\n\n\n\nMATCH\n\n\n\n\n")
 			*canJump = true
+		
+			if l.Parent.TargetPos[0][1] < l.Parent.CurrentPos[0][1] {
+				deltaY := lLeft.Y() - gdLeftU.Y() - eps
+				for i := 0; i < 4; i++ {
+					l.Parent.TargetPos[i][1] -= deltaY
+				}
+			}
 			return
-		} else {
-			*canJump = false
 		}
 	}
 	for i := 0; i < 4; i++ {
 		if !*canJump{
-			l.Parent.TargetPos[i][1] -= 0.01 
+			l.Parent.TargetPos[i][1] -= gravity 
 		}
   }
 }
