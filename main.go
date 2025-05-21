@@ -47,7 +47,10 @@ func main() {
 			case glfw.KeyD:
 				pl.SetTarget(0, pl.Speed)
 			case glfw.KeySpace:
-				pl.SetTarget(1, pl.JumpHeight)
+				if pl.CanJump {
+					pl.SetTarget(1, pl.JumpHeight)
+					pl.CanJump = false
+				}
 			}
 		}
 	})
@@ -85,7 +88,7 @@ func main() {
 	gl.UseProgram(program)
 
 	for !window.ShouldClose() {
-		pl.UpdatePos(pl.RootLimb)
+		pl.UpdatePos(pl.RootLimb, gd)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		for _, limb := range pl.GetAllLimbs() {
@@ -94,7 +97,6 @@ func main() {
 			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
-
 		}
 
 		for _, block := range gd {

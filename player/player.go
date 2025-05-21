@@ -4,7 +4,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	
 	"FirstHero/primShapes"
-//	"FirstHero/collision"
+	"FirstHero/collision"
 )
 
 type Player struct {
@@ -14,6 +14,8 @@ type Player struct {
 	Alpha      float32
 	Speed      float32
 	JumpHeight float32
+
+	CanJump bool
 }
 
 func NewPlayer() *Player {
@@ -120,7 +122,7 @@ func NewPlayer() *Player {
   allLimbs["LeftLeg"] = &ll
   allLimbs["RightLeg"] = &rl
   
-	pl := Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.3,
+	pl := Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.5, CanJump: true,
     RootLimb: &rt, Limbs: allLimbs}
 	return &pl
 }
@@ -143,7 +145,7 @@ func (p *Player) SetTarget(axis int, delta float32) {
 		p.RootLimb.TargetPos[i][axis] += delta
 	}
 }
-func (p *Player) UpdatePos(l *primShapes.Limb) {
+func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 	if l.Parent == nil {
 		for i := range l.TargetPos {
 			l.CurrentPos[i] = l.CurrentPos[i].Mul(1 - p.Alpha).Add(l.TargetPos[i].Mul(p.Alpha))
@@ -156,9 +158,14 @@ func (p *Player) UpdatePos(l *primShapes.Limb) {
 
 	for _, child := range p.Limbs {
 		if child.Parent == l {
-			p.UpdatePos(child)
+			p.UpdatePos(child, gd)
 		}
 	}
+
+	if l.Name == "RightLeg" || l.Name == "LeftLeg" {
+		collision.CheckCollision(l, gd, &p.CanJump)
+	}
+
 }
 func (p *Player) GetAllLimbs() []*primShapes.Limb {
 	allLimbs := make([]*primShapes.Limb, 0)
