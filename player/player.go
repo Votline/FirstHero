@@ -1,27 +1,15 @@
 package player
 
 import (
-	"FirstHero/primShapes"
-
 	"github.com/go-gl/mathgl/mgl32"
+	
+	"FirstHero/primShapes"
+//	"FirstHero/collision"
 )
 
-type Limb struct {
-	Name       string
-	Parent     *Limb
-	TargetPos  [4]mgl32.Vec2
-	CurrentPos [4]mgl32.Vec2
-	Color      []mgl32.Vec4
-}
-
-func (l *Limb) CreateLimb() ([]float32, []uint32) {
-	q := primShapes.Quad{Pos: l.CurrentPos, Color: l.Color}
-	return q.CreateQuad()
-}
-
 type Player struct {
-	RootLimb *Limb
-	Limbs    map[string]*Limb
+	RootLimb *primShapes.Limb
+	Limbs map[string]*primShapes.Limb
 
 	Alpha      float32
 	Speed      float32
@@ -29,7 +17,7 @@ type Player struct {
 }
 
 func NewPlayer() *Player {
-	rt := Limb{Name: "Root", Parent: nil,
+	rt := primShapes.Limb{Name: "Root", Parent: nil,
 		CurrentPos: [4]mgl32.Vec2{
 			{-0.8, -0.4}, {-0.8, -0.55},
 			{-0.73, -0.55}, {-0.73, -0.4},
@@ -45,7 +33,7 @@ func NewPlayer() *Player {
 			{0.0, 0.0, 1.0, 1.0},
 		},
 	}
-	rh := Limb{Name: "RightHand", Parent: &rt,
+	rh := primShapes.Limb{Name: "RightHand", Parent: &rt,
 		CurrentPos: [4]mgl32.Vec2{
 			{-0.05, 0.0}, {-0.05, 0.0},
 			{-0.07, 0.0}, {-0.07, 0.0},
@@ -61,7 +49,7 @@ func NewPlayer() *Player {
 			{1.0, 1.0, 0.0, 1.0},
 		},
 	}
-	lh := Limb{Name: "LeftHand", Parent: &rt,
+	lh := primShapes.Limb{Name: "LeftHand", Parent: &rt,
 		CurrentPos: [4]mgl32.Vec2{
 			{0.07, 0.0}, {0.07, 0.0},
 			{0.05, 0.0}, {0.05, 0.0},
@@ -77,7 +65,7 @@ func NewPlayer() *Player {
 			{1.0, 1.0, 0.0, 1.0},
 		},
 	}
-	rl := Limb{Name: "RightLeg", Parent: &rt,
+	rl := primShapes.Limb{Name: "RightLeg", Parent: &rt,
 		CurrentPos: [4]mgl32.Vec2{
 			{0.0, -0.15}, {0.0, -0.15},
 			{-0.035, -0.15}, {-0.035, -0.15},
@@ -93,7 +81,7 @@ func NewPlayer() *Player {
 			{0.49, 0.99, 0.0, 1.0},
 		},
 	}
-	ll := Limb{Name: "LeftLeg", Parent: &rt,
+	ll := primShapes.Limb{Name: "LeftLeg", Parent: &rt,
 		CurrentPos: [4]mgl32.Vec2{
 			{0.025, -0.15}, {0.025, -0.15},
 			{0.0, -0.15}, {0.0, -0.15},
@@ -109,7 +97,7 @@ func NewPlayer() *Player {
 			{0.49, 0.99, 0.0, 1.0},
 		},
 	}
-	head := Limb{Name: "Head", Parent: &rt,
+	head := primShapes.Limb{Name: "Head", Parent: &rt,
 		CurrentPos: [4]mgl32.Vec2{
 			{0.0, 0.15}, {0.0, 0.0},
 			{0.0, 0.0}, {0.05, 0.15},
@@ -125,7 +113,7 @@ func NewPlayer() *Player {
 			{1.0, 1.0, 0.0, 1.0},
 		},
 	}
-  allLimbs := make(map[string]*Limb)
+  allLimbs := make(map[string]*primShapes.Limb)
   allLimbs["Head"] = &head
   allLimbs["LeftHand"] = &lh
   allLimbs["RightHand"] = &rh
@@ -140,14 +128,14 @@ func (p *Player) SetTarget(axis int, delta float32) {
 	for i := 0; i < 4; i++ {
 		newPos := p.RootLimb.TargetPos[i][axis] + delta
 
-		if newPos < -1.0 {
-			delta = -1.0 - p.RootLimb.TargetPos[i][axis]
+		if newPos < -0.95 {
+			delta = -0.95 - p.RootLimb.TargetPos[i][axis]
 		}
-		if axis == 0 && newPos > 0.9 {
+		if axis == 0 && newPos > 0.95 {
+			delta = 0.95 - p.RootLimb.TargetPos[i][axis]
+		}
+		if axis == 1 && newPos > 0.9 {
 			delta = 0.9 - p.RootLimb.TargetPos[i][axis]
-		}
-		if axis == 1 && newPos > 0.7 {
-			delta = 0.7 - p.RootLimb.TargetPos[i][axis]
 		}
 	}
 
@@ -155,7 +143,7 @@ func (p *Player) SetTarget(axis int, delta float32) {
 		p.RootLimb.TargetPos[i][axis] += delta
 	}
 }
-func (p *Player) UpdatePos(l *Limb) {
+func (p *Player) UpdatePos(l *primShapes.Limb) {
 	if l.Parent == nil {
 		for i := range l.TargetPos {
 			l.CurrentPos[i] = l.CurrentPos[i].Mul(1 - p.Alpha).Add(l.TargetPos[i].Mul(p.Alpha))
@@ -172,13 +160,13 @@ func (p *Player) UpdatePos(l *Limb) {
 		}
 	}
 }
-func (p *Player) GetAllLimbs() []*Limb {
-	allLimbs := make([]*Limb, 0)
+func (p *Player) GetAllLimbs() []*primShapes.Limb {
+	allLimbs := make([]*primShapes.Limb, 0)
 	allLimbs = append(allLimbs, p.RootLimb)
 
 	for _, limb := range p.Limbs {
 		allLimbs = append(allLimbs, limb)
 	}
 
-	return allLimbs
+	return allLimbs 
 }

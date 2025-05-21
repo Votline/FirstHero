@@ -9,6 +9,7 @@ import (
 
 	"FirstHero/player"
 	"FirstHero/shaders"
+	"FirstHero/world"
 )
 
 const windowWidth = 800
@@ -20,6 +21,7 @@ func init() {
 
 func main() {
 	pl := player.NewPlayer()
+	gd := world.CreateGround()
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -81,18 +83,29 @@ func main() {
 	gl.LineWidth(3.0)
 	glfw.SwapInterval(1)
 	gl.UseProgram(program)
+
 	for !window.ShouldClose() {
 		pl.UpdatePos(pl.RootLimb)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		for _, limb := range pl.GetAllLimbs() {
 			vertices, indices := limb.CreateLimb()
-
 			gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
+
 		}
+
+		for _, block := range gd {
+			vertices, indices := block.CreateQuad()
+			gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
+
+			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
+
+		}
+
 		if err := gl.GetError(); err != gl.NO_ERROR {
 			log.Printf("OpenGL error: 0x%x\n", err)
 		}

@@ -5,6 +5,19 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
+type Limb struct {
+	Name string
+	Parent *Limb
+	TargetPos [4]mgl32.Vec2
+	CurrentPos [4]mgl32.Vec2
+	Color []mgl32.Vec4
+}
+func (l *Limb) CreateLimb() ([]float32, []uint32) {
+	q := Quad{Pos: l.CurrentPos, Color: l.Color}
+	vertices, indices := q.CreateQuad()
+	return vertices, indices
+}
+
 type Triangular struct {
 	TargetPos  mgl32.Vec2
 	CurrentPos mgl32.Vec2
@@ -32,6 +45,7 @@ func (t *Triangular) CreateTriangular(program uint32) ([]float32, int32) {
 }
 
 type Quad struct {
+	Name string
 	Pos   [4]mgl32.Vec2
 	Color []mgl32.Vec4
 }
