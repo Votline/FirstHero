@@ -8,8 +8,8 @@ import (
 type Limb struct {
 	Name string
 	Parent *Limb
-	TargetPos [4]mgl32.Vec2
-	CurrentPos [4]mgl32.Vec2
+	TargetPos [4]mgl32.Vec3
+	CurrentPos [4]mgl32.Vec3
 	Color []mgl32.Vec4
 }
 func (l *Limb) CreateLimb() ([]float32, []uint32) {
@@ -46,7 +46,7 @@ func (t *Triangular) CreateTriangular(program uint32) ([]float32, int32) {
 
 type Quad struct {
 	Name string
-	Pos   [4]mgl32.Vec2
+	Pos   [4]mgl32.Vec3
 	Color []mgl32.Vec4
 }
 
@@ -54,7 +54,7 @@ func (q *Quad) CreateQuad() ([]float32, []uint32) {
 	var vertices []float32
 	for i := 0; i < 4; i++ {
 		vertices = append(vertices,
-			q.Pos[i].X(), q.Pos[i].Y(), 0.0,
+			q.Pos[i].X(), q.Pos[i].Y(), q.Pos[i].Z(),
 			q.Color[i].X(), q.Color[i].Y(), q.Color[i].Z(), q.Color[i].W())
 	}
 	indices := []uint32{0, 1, 2, 2, 3, 0}

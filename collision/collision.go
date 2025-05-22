@@ -43,7 +43,7 @@ func CheckCollision(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		}
   }
 }
-func isPointInQuad(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec2) bool {
+func isPointInQuad(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec3) bool {
 	return point.X() >= qLeftU.X()-eps && point.X() <= qRightU.X()-eps &&
 				 point.Y() >= qLeftD.Y()-eps && point.Y() <= qRightU.Y()+eps
 }
