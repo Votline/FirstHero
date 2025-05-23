@@ -11,7 +11,7 @@ import (
 const eps = 0.001
 const gravity = 0.01
 
-func CheckCollision(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
+func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 	lLeft := l.CurrentPos[1]
 	lRight := l.CurrentPos[2]
 	*canJump = false

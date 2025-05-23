@@ -39,14 +39,9 @@ func main() {
 		log.Fatalln("GLFW create window error. \nErr: ", err)
 	}
 	window.MakeContextCurrent()
-	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mod glfw.ModifierKey) {
-		if action == glfw.Press || action == glfw.Repeat {
-			switch key {
-			case glfw.KeyA:
-				pl.SetTarget(0, -pl.Speed)
-			case glfw.KeyD:
-				pl.SetTarget(0, pl.Speed)
-			case glfw.KeySpace:
+	window.SetKeyCallback(func(w *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mod glfw.ModifierKey) {	
+	if action == glfw.Press {
+			if key == glfw.KeySpace {
 				if pl.CanJump {
 					pl.SetTarget(1, pl.JumpHeight)
 					pl.CanJump = false
@@ -88,6 +83,7 @@ func main() {
 	gl.UseProgram(program)
 
 	for !window.ShouldClose() {
+		processInput(window, pl)
 		pl.UpdatePos(pl.RootLimb, gd)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
@@ -114,5 +110,14 @@ func main() {
 
 		window.SwapBuffers()
 		glfw.PollEvents()
+	}
+}
+
+func processInput(w *glfw.Window, pl *player.Player) {
+	if w.GetKey(glfw.KeyA) == glfw.Press {
+		pl.SetTarget(0, -pl.Speed)
+	}
+	if w.GetKey(glfw.KeyD) == glfw.Press {
+		pl.SetTarget(0, pl.Speed)
 	}
 }

@@ -122,7 +122,7 @@ func NewPlayer() *Player {
   allLimbs["LeftLeg"] = &ll
   allLimbs["RightLeg"] = &rl
   
-	pl := Player{Alpha: 0.1, Speed: 0.2, JumpHeight: 0.5, CanJump: true,
+	pl := Player{Alpha: 0.1, Speed: 0.01, JumpHeight: 0.5, CanJump: true,
     RootLimb: &rt, Limbs: allLimbs}
 	return &pl
 }
@@ -163,7 +163,7 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 	}
 
 	if l.Name == "RightLeg" || l.Name == "LeftLeg" {
-		collision.CheckCollision(l, gd, &p.CanJump)
+		collision.IsGrounded(l, gd, &p.CanJump)
 	}
 
 }
