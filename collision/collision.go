@@ -22,11 +22,9 @@ func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		gdRightU := block.Pos[3]
 		gdLeftD := block.Pos[1]
 		gdRightD := block.Pos[2]
-//	  log.Printf("\nlLeft: %v | lRight: %v\n gdLeftU: %v | gdRightU: %v\n gdLeftD: %v | gdRightD: %v\n", lLeft, lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)
 		
-		if (isPointInQuad(lLeft, gdLeftU, gdRightU, gdLeftD, gdRightD) ||
-		isPointInQuad(lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)) {
-//			log.Println("\n\n\n\n\nMATCH\n\n\n\n\n")
+		if (isInGround(lLeft, gdLeftU, gdRightU, gdLeftD, gdRightD) ||
+		isInGround(lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)) {
 			*canJump = true
 		
 			if l.Parent.TargetPos[0][1] < l.Parent.CurrentPos[0][1] {
@@ -44,9 +42,9 @@ func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		}
   }
 }
-func isPointInQuad(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec3) bool {
+func isInGround(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec3) bool {
 	return point.X() >= qLeftU.X()-eps && point.X() <= qRightU.X()-eps &&
-				 point.Y() >= qLeftD.Y()-eps && point.Y() <= qRightU.Y()+eps
+				 point.Y() >= qLeftD.Y()-eps && point.Y() <= qRightU.Y()-eps
 }
 
 func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool) {
@@ -60,19 +58,43 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool
 		wlRight := block.Pos[3]
 		
 		if math.Abs(float64(lLeftU.Y()-wlLeft.Y())) < float64(0.1) {
-			if (isPointInRect(lLeftU.X(), wlLeft.X(), wlRight.X()) ||
-				isPointInRect(lLeftD.X(), wlLeft.X(), wlRight.X()) ||
-				isPointInRect(lRightU.X(), wlLeft.X(), wlRight.X()) ||
-				isPointInRect(lRightD.X(), wlLeft.X(), wlRight.X())) {
-				*canMove = false
-				log.Println("gothca")
+			if (isInWall(lLeftU.X(), wlLeft.X(), wlRight.X()) ||
+			isInWall(lLeftD.X(), wlLeft.X(), wlRight.X()) ||
+			isInWall(lRightU.X(), wlLeft.X(), wlRight.X()) ||
+			isInWall(lRightD.X(), wlLeft.X(), wlRight.X())) {
+				deltaX := findDeltaX(lLeftU, lRightU, lLeftD, lRightD, wlLeft, wlRight)
+				for i := 0; i < 4; i++ {
+					if l.Parent != nil {
+						l.Parent.TargetPos[i][0] += deltaX
+					} else {
+						l.TargetPos[i][0] += deltaX
+					}
+				}
+				log.Printf("Wall collision with %s", l.Name)
 				return
 			}
 		}
 	}
 	*canMove = true
 }
+func findDeltaX(lLeftU, lRightU, lLeftD, lRightD, qLeft, qRight mgl32.Vec3) float32 {
+	if lRightU.X() > qLeft.X() && lLeftU.X() < qLeft.X() {
+		return 0.01
+	} else if lLeftU.X() > qRight.X() && lRightU.X() < qRight.X() {
+		return -0.01
+	} else {
+		return 0.01
+	/*	log.Println("YRS")
 
-func isPointInRect(point float32, qLeft, qRight float32) bool {
+		leftDist := lRightU.X() - qLeft.X()
+		rightDist := qRight.X() - lLeftU.X()
+		if leftDist > rightDist {
+			return leftDist + eps
+		} else {
+			return -rightDist - eps
+		}*/
+	}
+}
+func isInWall(point, qLeft, qRight float32) bool {
   return point >= qLeft-eps && point <= qRight-eps
 }

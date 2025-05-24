@@ -162,13 +162,20 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 			p.UpdatePos(child, gd)
 		}
 	}
-	
-	collision.CheckWallCollision(l, gd, &p.CanMove)
 
 	if l.Name == "RightLeg" || l.Name == "LeftLeg" {
 		collision.IsGrounded(l, gd, &p.CanJump)
 	}
 
+	if l.Parent == nil {
+		p.CanMove = true
+		for _, limb := range p.GetAllLimbs() {
+			collision.CheckWallCollision(limb, gd, &p.CanMove)
+			if !p.CanMove {
+				break
+			}
+		}
+	}
 }
 func (p *Player) GetAllLimbs() []*primShapes.Limb {
 	allLimbs := make([]*primShapes.Limb, 0)
