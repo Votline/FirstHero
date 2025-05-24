@@ -1,7 +1,6 @@
 package collision
 
 import (
-	"log"
 	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -71,7 +70,7 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMoveLeft *
 						if l.Parent != nil {
 							l.Parent.TargetPos[i][0] = l.Parent.CurrentPos[i][0] + deltaX
 						} else {
-							l.TargetPos[i][0] = l.CurrentPos[i][0] + deltaX
+							l.TargetPos[i][0] += deltaX
 						}
 					}
 				} else {
@@ -81,11 +80,10 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMoveLeft *
 						if l.Parent != nil {
 							l.Parent.TargetPos[i][0] = l.Parent.CurrentPos[i][0] + deltaX
 						} else {
-							l.TargetPos[i][0] = l.CurrentPos[i][0] + deltaX
+							l.TargetPos[i][0] += deltaX
 						}
 					}
 				}
-				log.Printf("Wall collision with %s", l.Name)
 				return
 			}
 		}
