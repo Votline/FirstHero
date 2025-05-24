@@ -115,12 +115,12 @@ func main() {
 
 func processInput(w *glfw.Window, pl *player.Player) {
 	if w.GetKey(glfw.KeyA) == glfw.Press {
-		if pl.CanMove {
+		if pl.CanMoveLeft {
 			pl.SetTarget(0, -pl.Speed)
 		}
 	}
 	if w.GetKey(glfw.KeyD) == glfw.Press {
-		if pl.CanMove {
+		if pl.CanMoveRight {
 			pl.SetTarget(0, pl.Speed)
 		}
 	}

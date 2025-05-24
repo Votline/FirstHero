@@ -47,7 +47,7 @@ func isInGround(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec3) bool {
 				 point.Y() >= qLeftD.Y()-eps && point.Y() <= qRightU.Y()-eps
 }
 
-func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool) {
+func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMoveLeft *bool, canMoveRight *bool) {
 	lLeftU := l.CurrentPos[0]
 	lRightU := l.CurrentPos[3]
 	lLeftD := l.CurrentPos[1]
@@ -62,12 +62,27 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool
 			isInWall(lLeftD.X(), wlLeft.X(), wlRight.X()) ||
 			isInWall(lRightU.X(), wlLeft.X(), wlRight.X()) ||
 			isInWall(lRightD.X(), wlLeft.X(), wlRight.X())) {
-				deltaX := findDeltaX(lLeftU, lRightU, lLeftD, lRightD, wlLeft, wlRight)
-				for i := 0; i < 4; i++ {
-					if l.Parent != nil {
-						l.Parent.TargetPos[i][0] += deltaX
-					} else {
-						l.TargetPos[i][0] += deltaX
+				plCenter := (lLeftU.X() + lRightU.X())/2
+				qCenter := (wlLeft.X() + wlRight.X())/2
+				if plCenter < qCenter {
+					*canMoveRight = false
+					deltaX := wlLeft.X() - lRightU.X() - eps
+					for i := 0; i < 4; i++ {
+						if l.Parent != nil {
+							l.Parent.TargetPos[i][0] = l.Parent.CurrentPos[i][0] + deltaX
+						} else {
+							l.TargetPos[i][0] = l.CurrentPos[i][0] + deltaX
+						}
+					}
+				} else {
+					*canMoveLeft = false
+					deltaX := wlRight.X() - lLeftU.X() - eps
+					for i := 0; i < 4; i++ {
+						if l.Parent != nil {
+							l.Parent.TargetPos[i][0] = l.Parent.CurrentPos[i][0] + deltaX
+						} else {
+							l.TargetPos[i][0] = l.CurrentPos[i][0] + deltaX
+						}
 					}
 				}
 				log.Printf("Wall collision with %s", l.Name)
@@ -75,17 +90,10 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool
 			}
 		}
 	}
-	*canMove = true
+	*canMoveLeft = true
+	*canMoveRight = true
 }
-func findDeltaX(lLeftU, lRightU, lLeftD, lRightD, qLeft, qRight mgl32.Vec3) float32 {
-	plCenter := (lLeftU.X() + lRightU.X())/2
-	qCenter := (qLeft.X() + qRight.X())/2
 
-	if plCenter < qCenter {
-		return -0.01
-	}
-	return 0.01
-}
 func isInWall(point, qLeft, qRight float32) bool {
   return point >= qLeft-eps && point <= qRight-eps
 }
