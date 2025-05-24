@@ -78,22 +78,13 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool
 	*canMove = true
 }
 func findDeltaX(lLeftU, lRightU, lLeftD, lRightD, qLeft, qRight mgl32.Vec3) float32 {
-	if lRightU.X() > qLeft.X() && lLeftU.X() < qLeft.X() {
-		return 0.01
-	} else if lLeftU.X() > qRight.X() && lRightU.X() < qRight.X() {
-		return -0.01
-	} else {
-		return 0.01
-	/*	log.Println("YRS")
+	plCenter := (lLeftU.X() + lRightU.X())/2
+	qCenter := (qLeft.X() + qRight.X())/2
 
-		leftDist := lRightU.X() - qLeft.X()
-		rightDist := qRight.X() - lLeftU.X()
-		if leftDist > rightDist {
-			return leftDist + eps
-		} else {
-			return -rightDist - eps
-		}*/
+	if plCenter < qCenter {
+		return -0.01
 	}
+	return 0.01
 }
 func isInWall(point, qLeft, qRight float32) bool {
   return point >= qLeft-eps && point <= qRight-eps
