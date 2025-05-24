@@ -16,6 +16,7 @@ type Player struct {
 	JumpHeight float32
 
 	CanJump bool
+	CanMove bool
 }
 
 func NewPlayer() *Player {
@@ -122,7 +123,7 @@ func NewPlayer() *Player {
   allLimbs["LeftLeg"] = &ll
   allLimbs["RightLeg"] = &rl
   
-	pl := Player{Alpha: 0.1, Speed: 0.01, JumpHeight: 0.5, CanJump: true,
+	pl := Player{Alpha: 0.1, Speed: 0.01, JumpHeight: 0.5, CanJump: true, CanMove: true,
     RootLimb: &rt, Limbs: allLimbs}
 	return &pl
 }
@@ -161,6 +162,8 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 			p.UpdatePos(child, gd)
 		}
 	}
+	
+	collision.CheckWallCollision(l, gd, &p.CanMove)
 
 	if l.Name == "RightLeg" || l.Name == "LeftLeg" {
 		collision.IsGrounded(l, gd, &p.CanJump)

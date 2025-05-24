@@ -2,6 +2,7 @@ package collision
 
 import (
 	"log"
+	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
 
@@ -21,11 +22,11 @@ func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		gdRightU := block.Pos[3]
 		gdLeftD := block.Pos[1]
 		gdRightD := block.Pos[2]
-	  log.Printf("\nlLeft: %v | lRight: %v\n gdLeftU: %v | gdRightU: %v\n gdLeftD: %v | gdRightD: %v\n", lLeft, lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)
+//	  log.Printf("\nlLeft: %v | lRight: %v\n gdLeftU: %v | gdRightU: %v\n gdLeftD: %v | gdRightD: %v\n", lLeft, lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)
 		
 		if (isPointInQuad(lLeft, gdLeftU, gdRightU, gdLeftD, gdRightD) ||
 		isPointInQuad(lRight, gdLeftU, gdRightU, gdLeftD, gdRightD)) {
-			log.Println("\n\n\n\n\nMATCH\n\n\n\n\n")
+//			log.Println("\n\n\n\n\nMATCH\n\n\n\n\n")
 			*canJump = true
 		
 			if l.Parent.TargetPos[0][1] < l.Parent.CurrentPos[0][1] {
@@ -46,4 +47,32 @@ func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 func isPointInQuad(point, qLeftU, qRightU, qLeftD, qRightD mgl32.Vec3) bool {
 	return point.X() >= qLeftU.X()-eps && point.X() <= qRightU.X()-eps &&
 				 point.Y() >= qLeftD.Y()-eps && point.Y() <= qRightU.Y()+eps
+}
+
+func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMove *bool) {
+	lLeftU := l.CurrentPos[0]
+	lRightU := l.CurrentPos[3]
+	lLeftD := l.CurrentPos[1]
+	lRightD := l.CurrentPos[2]
+	
+	for _, block := range wl {
+		wlLeft := block.Pos[0]
+		wlRight := block.Pos[3]
+		
+		if math.Abs(float64(lLeftU.Y()-wlLeft.Y())) < float64(0.1) {
+			if (isPointInRect(lLeftU.X(), wlLeft.X(), wlRight.X()) ||
+				isPointInRect(lLeftD.X(), wlLeft.X(), wlRight.X()) ||
+				isPointInRect(lRightU.X(), wlLeft.X(), wlRight.X()) ||
+				isPointInRect(lRightD.X(), wlLeft.X(), wlRight.X())) {
+				*canMove = false
+				log.Println("gothca")
+				return
+			}
+		}
+	}
+	*canMove = true
+}
+
+func isPointInRect(point float32, qLeft, qRight float32) bool {
+  return point >= qLeft-eps && point <= qRight-eps
 }
