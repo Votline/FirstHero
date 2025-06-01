@@ -159,6 +159,7 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad, anim8 *ani
 	}
 
 	p.startAnim(anim8)
+	anim8.Update(p.GetAllLimbs())
 
 	for _, child := range p.Limbs {
 		if child.Parent == l {
