@@ -14,7 +14,6 @@ const gravity = 0.01
 func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 	lLeft := l.CurrentPos[1]
 	lRight := l.CurrentPos[2]
-	*canJump = false
 
 	for _, block := range gd {
 		gdLeftU := block.Pos[0]
@@ -65,7 +64,8 @@ func CheckWallCollision(l *primShapes.Limb, wl []*primShapes.Quad, canMoveLeft *
 	lRightU := l.CurrentPos[3]
 	lLeftD := l.CurrentPos[1]
 	lRightD := l.CurrentPos[2]
-	
+
+
 	for _, block := range wl {
 		wlLeft := block.Pos[0]
 		wlRight := block.Pos[3]

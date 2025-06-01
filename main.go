@@ -10,6 +10,7 @@ import (
 	"FirstHero/player"
 	"FirstHero/shaders"
 	"FirstHero/world"
+	"FirstHero/anim"
 )
 
 const windowWidth = 800
@@ -23,6 +24,7 @@ func main() {
 	pl := player.NewPlayer()
 	qt, _ := world.CreateWorld()
 	camBounds := world.GetViewBounds()
+	anim8 := anim.NewAnimator()
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -87,7 +89,7 @@ func main() {
 		processInput(window, pl)
 		plBounds := world.GetPlayerCollisionBounds(pl)
 		nbBlocks := qt.Query(plBounds)
-		pl.UpdatePos(pl.RootLimb, nbBlocks)
+		pl.UpdatePos(pl.RootLimb, nbBlocks, anim8)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		for _, limb := range pl.GetAllLimbs() {

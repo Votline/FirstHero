@@ -5,6 +5,7 @@ import (
 	
 	"FirstHero/primShapes"
 	"FirstHero/collision"
+	"FirstHero/anim"
 )
 
 type Player struct {
@@ -19,7 +20,6 @@ type Player struct {
 	CanMoveLeft bool
 	CanMoveRight bool
 }
-
 func NewPlayer() *Player {
 	rt := primShapes.Limb{Name: "Root", Parent: nil,
 		CurrentPos: [4]mgl32.Vec3{
@@ -147,7 +147,7 @@ func (p *Player) SetTarget(axis int, delta float32) {
 		p.RootLimb.TargetPos[i][axis] += delta
 	}
 }
-func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
+func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad, anim8 *anim.Animator) {
 	if l.Parent == nil {
 		for i := range l.TargetPos {
 			l.CurrentPos[i] = l.CurrentPos[i].Mul(1 - p.Alpha).Add(l.TargetPos[i].Mul(p.Alpha))
@@ -158,9 +158,11 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 		}
 	}
 
+	p.startAnim(anim8)
+
 	for _, child := range p.Limbs {
 		if child.Parent == l {
-			p.UpdatePos(child, gd)
+			p.UpdatePos(child, gd, anim8)
 		}
 	}
 
@@ -177,6 +179,13 @@ func (p *Player) UpdatePos(l *primShapes.Limb, gd []*primShapes.Quad) {
 				break
 			}
 		}
+	}
+}
+func (p *Player) startAnim(anim8 *anim.Animator) {
+	if !p.CanJump {
+		anim8.StartJump(p.GetAllLimbs())
+	} else {
+		anim8.StopJump(p.GetAllLimbs())
 	}
 }
 func (p *Player) GetAllLimbs() []*primShapes.Limb {
