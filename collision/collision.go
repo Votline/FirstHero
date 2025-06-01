@@ -25,10 +25,9 @@ func IsGrounded(l *primShapes.Limb, gd []*primShapes.Quad, canJump *bool) {
 		for _, point := range []mgl32.Vec3{lLeft, lRight} {
 			if isInGround(point, gdLeftU, gdRightU, gdLeftD, gdRightD) {
 				normal := getCollisionNormal(point, gdLeftU, gdRightU, gdLeftD, gdRightD)
+				*canJump = true
 
 				if normal.Y() > 0.5 {
-					*canJump = true
-
 					if l.Parent.TargetPos[0][1] < l.Parent.CurrentPos[0][1] {
 						deltaY := point.Y() - gdLeftU.Y() - eps
 						for i := range l.Parent.TargetPos {

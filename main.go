@@ -21,7 +21,7 @@ func init() {
 
 func main() {
 	pl := player.NewPlayer()
-	gd := world.CreateGround()
+	qt, gd := world.CreateWorld()
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -95,13 +95,12 @@ func main() {
 			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
 		}
 
-		for _, block := range gd {
+		for _, block := range qt.Query(world.GetViewBounds()) {
 			vertices, indices := block.CreateQuad()
 			gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)
 
 			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
-
 		}
 
 		if err := gl.GetError(); err != gl.NO_ERROR {
