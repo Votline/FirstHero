@@ -21,7 +21,8 @@ func init() {
 
 func main() {
 	pl := player.NewPlayer()
-	qt, gd := world.CreateWorld()
+	qt, _ := world.CreateWorld()
+	camBounds := world.GetViewBounds()
 
 	if err := glfw.Init(); err != nil {
 		log.Fatalln("GLFW init error. \nErr: ", err)
@@ -84,7 +85,9 @@ func main() {
 
 	for !window.ShouldClose() {
 		processInput(window, pl)
-		pl.UpdatePos(pl.RootLimb, gd)
+		plBounds := world.GetPlayerCollisionBounds(pl)
+		nbBlocks := qt.Query(plBounds)
+		pl.UpdatePos(pl.RootLimb, nbBlocks)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		for _, limb := range pl.GetAllLimbs() {
@@ -95,7 +98,7 @@ func main() {
 			gl.DrawElements(gl.TRIANGLES, int32(len(indices)), gl.UNSIGNED_INT, nil)
 		}
 
-		for _, block := range qt.Query(world.GetViewBounds()) {
+		for _, block := range qt.Query(camBounds) {
 			vertices, indices := block.CreateQuad()
 			gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
 			gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(indices), gl.STATIC_DRAW)

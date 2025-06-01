@@ -6,6 +6,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 
 	"FirstHero/primShapes"
+	"FirstHero/player"
 )
 
 const eps = 0.001 
@@ -178,4 +179,17 @@ func GetViewBounds() primShapes.Quad {
 		},
 	}
 	return groundBounds
+}
+
+func GetPlayerCollisionBounds(pl *player.Player) primShapes.Quad {
+	margin := float32(0.2)
+	plPos := pl.RootLimb.CurrentPos[0]
+	return primShapes.Quad{
+		Pos: [4]mgl32.Vec3{
+			{plPos.X() - margin, plPos.Y() + margin, 0},
+			{plPos.X() - margin, plPos.Y() - margin, 0},
+			{plPos.X() + margin, plPos.Y() - margin, 0},
+			{plPos.X() + margin, plPos.Y() + margin, 0},
+		},
+	}
 }
